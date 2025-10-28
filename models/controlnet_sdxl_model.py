@@ -78,12 +78,12 @@ class ControlNetSDXL:
         out = self.pipe(
             prompt=prompt,
             guidance_scale=7.5,
-            num_inference_steps=40,
+            num_inference_steps=16,
             ip_adapter_image_embeds=[embeds],
             image=control_image,
-            controlnet_conditioning_scale=0.4,
+            controlnet_conditioning_scale=1.0,
             control_guidance_start=0.0,
-            control_guidance_end=0.4,
+            control_guidance_end=1.0,
             generator=generator
         ).images[0]
 
