@@ -1,0 +1,20 @@
+{
+  "job_id": "4ac5fbaf1a78",
+  "created_at": "2025-10-29T13:12:33Z",
+  "input": {
+    "init": "7a53244c_frame1.png",
+    "concept": [
+      "127c2055_puff1.jpeg",
+      "1de5cce6_puff2.jpeg"
+    ],
+    "condition": [
+      "1e08748c_540464_3.png",
+      "a59dc53b_614646_3__1_.png",
+      "f7e6c7cc_619001_2__1_.png",
+      "5a3e4151_715279_3.png",
+      "2555dc7c_738845_2.png"
+    ],
+    "mask": null
+  },
+  "stages": {}
+}

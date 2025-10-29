@@ -47,7 +47,10 @@ origins = [o.strip() for o in settings.CORS_ORIGINS.split(",") if o.strip()]
 if origins:
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=origins,
+        allow_origins=[
+        "http://localhost:5173",
+        "https://glass-lab.vercel.app", 
+    ],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -55,8 +58,8 @@ if origins:
 
 # 라우팅
 app.include_router(generate.router)
-app.include_router(inpaint.router)
-app.include_router(render3d.router)
+# app.include_router(inpaint.router)
+# app.include_router(render3d.router)
 
 @app.get("/healthz")
 def health():

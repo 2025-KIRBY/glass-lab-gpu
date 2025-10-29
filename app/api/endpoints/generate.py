@@ -3,6 +3,8 @@ from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 from fastapi.responses import StreamingResponse
 from typing import List
 import io
+import logging
+log = logging.getLogger(__name__)
 
 # 인증/동시성/업로드 가드 (환경변수 API_KEY 없으면 require_auth는 자동 패스)
 from app.core.security import require_auth, concurrency_guard, guard_uploads
@@ -32,6 +34,7 @@ async def generate(
             init_image, concept_images, condition_images
         )
     except Exception:
+        log.exception("generate failed") 
         raise HTTPException(500, "이미지 생성 중 오류가 발생했습니다")
 
     headers = {
