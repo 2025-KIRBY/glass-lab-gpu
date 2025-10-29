@@ -1,0 +1,63 @@
+# from fastapi import FastAPI, UploadFile, Form
+# from PIL import Image
+# import os
+# from models.controlnet_sdxl_model import ControlNetSDXL
+# import torch
+
+# app = FastAPI()
+# device = "cuda"
+# # device = "mps" if torch.backends.mps.is_available() else "cpu"
+# model = ControlNetSDXL(device)
+# os.makedirs("outputs", exist_ok=True)
+
+# @app.get("/")
+# def root():
+#     return {"message": "SDXL ControlNet Server is running 🚀"}
+
+# @app.post("/generate")
+# async def generate_image(
+#     prompt: str = Form(...),
+#     base: UploadFile = None,
+#     refs: list[UploadFile] = None
+# ):
+#     base_img = Image.open(base.file).convert("RGB")
+#     ref_imgs = [Image.open(r.file).convert("RGB") for r in refs] if refs else []
+
+#     # 코랩 weights와 동일
+#     weights = [0.75, 0.6, 0.6][:len(ref_imgs)]
+
+#     result = model.generate(prompt, base_img, ref_imgs, weights)
+#     path = f"outputs/result.png"
+#     result.save(path)
+
+#     return {"status": "ok", "file": path}
+
+# app/main.py
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from app.core.logging import setup_logging
+from app.core.config import settings
+from app.api.endpoints import generate, inpaint, render3d
+
+setup_logging()
+app = FastAPI(title="Glass-Lab API")
+
+# CORS
+origins = [o.strip() for o in settings.CORS_ORIGINS.split(",") if o.strip()]
+if origins:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+# 라우팅
+app.include_router(generate.router)
+app.include_router(inpaint.router)
+app.include_router(render3d.router)
+
+@app.get("/healthz")
+def health():
+    return {"ok": True}
