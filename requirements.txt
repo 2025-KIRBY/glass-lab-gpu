@@ -8,3 +8,4 @@ safetensors==0.6.2
 pillow
 opencv-python
 numpy
+git+https://github.com/tencent-ailab/IP-Adapter.git
