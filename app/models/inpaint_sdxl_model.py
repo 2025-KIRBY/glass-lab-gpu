@@ -122,3 +122,13 @@ class InpaintSDXL:
             torch.cuda.empty_cache()
             
         return out
+
+# ==============================================
+_global_model: Optional[InpaintSDXL] = None
+
+def get_pipe() -> InpaintSDXL:
+    global _global_model
+    if _global_model is None:
+        print("[INIT] Loading InpaintSDXL pipeline (once)...")
+        _global_model = InpaintSDXL()
+    return _global_model

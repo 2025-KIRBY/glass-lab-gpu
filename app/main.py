@@ -24,7 +24,7 @@ app.add_middleware(
 
 # 라우팅
 app.include_router(generate.router)
-# app.include_router(inpaint.router)
+app.include_router(inpaint.router)
 # app.include_router(render3d.router)
 
 @app.get("/healthz")
