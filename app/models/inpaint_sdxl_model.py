@@ -15,7 +15,7 @@ class InpaintSDXL:
         self.controlnet = ControlNetModel.from_pretrained("xinsir/controlnet-union-sdxl-1.0", torch_dtype=torch.float16)
 
         self.pipe = StableDiffusionXLControlNetInpaintPipeline.from_pretrained(
-            "stabilityai/stable-diffusion-xl-inpainting-1.0",
+            "stabilityai/stable-diffusion-xl-base-1.0",
             controlnet=self.controlnet,
             vae=self.vae,
             torch_dtype=torch.float16,
@@ -101,21 +101,20 @@ class InpaintSDXL:
         generator = torch.Generator(device=self.device).manual_seed(seed)
 
         # results = []
-        for i in range(num_outputs):
-            out = self.pipe(
-                prompt=prompt,
-                guidance_scale=guidance,
-                num_inference_steps=steps,
-                ip_adapter_image_embeds=embeds,
-                control_image=control_img,
-                controlnet_conditioning_scale=0.2,
-                control_guidance_start=0.0,
-                control_guidance_end=0.15,
-                image=base_img,
-                mask_image=mask_img,
-                generator=generator
-            ).images[0]
-            # results.append(out)
+        out = self.pipe(
+            prompt=prompt,
+            guidance_scale=guidance,
+            num_inference_steps=steps,
+            ip_adapter_image_embeds=embeds,
+            control_image=control_img,
+            controlnet_conditioning_scale=0.2,
+            control_guidance_start=0.0,
+            control_guidance_end=0.15,
+            image=base_img,
+            mask_image=mask_img,
+            generator=generator
+        ).images[0]
+        # results.append(out)
 
         gc.collect()
         if self.device == "cuda":

@@ -24,6 +24,7 @@ async def run_stage2(
     init_pil = _to_pil(init_image)
     mask_pil = _to_pil(mask_image)
     concept_pils = [_to_pil(u) for u in new_concept_images]
+    cond_pils = [_to_pil(u) for u in condition_images] 
 
     pipe = get_pipe()   # InpaintSDXL 싱글톤
 
@@ -74,10 +75,4 @@ async def run_stage2(
     buf.seek(0)
 
     filename = f"inpaint_result_{job_id}.zip"
-
-    # ============================================================
-    # 5. 메모리 정리 후 반환
-    # ============================================================
-    gc.collect()
-
     return buf.read(), filename, job_id
