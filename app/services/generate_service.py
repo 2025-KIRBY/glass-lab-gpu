@@ -1,80 +1,16 @@
-# # app/services/generate_service.py
-# from __future__ import annotations
-# import io, zipfile
-# from typing import List, Tuple, Optional
-# from PIL import Image
-# from fastapi import UploadFile
-
-# from app.models.controlnet_sdxl_model import ControlNetSDXL
-# from app.models.controlnet_sdxl_model import get_pipe
-
-# _model: Optional[GlassLabSDXL] = None
-
-# def _get_model() -> GlassLabSDXL:
-#     global _model
-#     if _model is None:
-#         _model = GlassLabSDXL(
-#             # dtype=torch.float16  # 기본값(f16). CPU나 낮은 VRAM이면 float32로 변경
-#         )
-#     return _model
-
-# def _to_pil(u: UploadFile) -> Image.Image:
-#     data = u.file.read()
-#     return Image.open(io.BytesIO(data)).convert("RGB")
-
-# async def run(
-#     init_image: UploadFile,
-#     concept_images: List[UploadFile],
-#     condition_images: List[UploadFile],
-# ) -> Tuple[bytes, str, str]:
-#     """
-#     엔드포인트 generate.py가 기대하는 시그니처 그대로:
-#       - init 1장
-#       - concept 2~5장
-#       - condition 5장
-#       - 결과 6장 ZIP
-#     """
-#     init_pil = _to_pil(init_image)
-#     concept_pils = [_to_pil(u) for u in concept_images]
-#     cond_pils = [_to_pil(u) for u in condition_images]
-
-#     pipe = get_pipe() 
-#     gen_images, job_id = pipe.generate(
-#         init_image=init_pil,
-#         concept_images=concept_pils,
-#         condition_images=cond_pils,
-#         num_images=6,   # 요구: 6장 생성
-#     )
-
-#     # ZIP 패키징
-    
-#     buf = io.BytesIO()
-#     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
-#         for i, im in enumerate(gen_images):
-#             io_img = io.BytesIO()
-#             im.save(io_img, format="PNG")
-#             zf.writestr(f"gen_{i:02d}.png", io_img.getvalue())
-#     buf.seek(0)
-
-#     filename = "result_images.zip"
-#     return buf.read(), filename, job_id
 from __future__ import annotations
-import io, zipfile
+
+from pathlib import Path
+import io, zipfile, uuid
 from typing import List, Tuple, Optional
 from PIL import Image
 from fastapi import UploadFile
-import uuid
-
-# ⭐️ 수정: GlassLabSDXL 대신 ControlNetSDXL 임포트 ⭐️
 from app.models.controlnet_sdxl_model import ControlNetSDXL, get_pipe
-
-# ⭐️ 수정: _model 변수 제거 (get_pipe 사용) ⭐️
 
 def _to_pil(u: UploadFile) -> Image.Image:
     data = u.file.read()
     # ⭐️ .read()는 async/await가 필요할 수 있으나, 현재는 동기 방식으로 가정 ⭐️
     return Image.open(io.BytesIO(data)).convert("RGB")
-
 
 async def run(
     init_image: UploadFile,
@@ -124,12 +60,26 @@ async def run(
 
     # 4. ZIP 패키징 (기존 로직 유지)
     
+    # ✅ 4-1. 서버 저장용 폴더 생성
+    # save_dir = Path("/workspace/outputs")   # RunPod/EC2용
+    save_dir = Path("app/static/outputs") # 로컬 FastAPI용
+    save_dir.mkdir(parents=True, exist_ok=True)
+
+    # ✅ 4-2. ZIP으로 묶기 + 서버에도 저장
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
         for i, im in enumerate(gen_images):
+            filename = f"gen_{i:02d}_{job_id}.png"
+
+            # ⭐️ 백엔드 저장
+            file_path = save_dir / filename
+            im.save(file_path)
+
+            # ⭐️ ZIP에 추가 (프론트로 보낼용)
             io_img = io.BytesIO()
             im.save(io_img, format="PNG")
-            zf.writestr(f"gen_{i:02d}_{job_id}.png", io_img.getvalue())
+            zf.writestr(filename, io_img.getvalue())
+
     buf.seek(0)
 
     filename = f"result_{job_id}.zip"
