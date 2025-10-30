@@ -11,7 +11,7 @@ def _to_pil(u: UploadFile) -> Image.Image:
     return Image.open(io.BytesIO(data)).convert("RGB")
 
 async def run_stage2(
-    prompt = str,
+    prompt:  str,
     init_image: UploadFile,
     mask_image: UploadFile,
     new_concept_images: List[UploadFile],
