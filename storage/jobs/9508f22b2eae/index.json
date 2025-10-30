@@ -1,0 +1,20 @@
+{
+  "job_id": "9508f22b2eae",
+  "created_at": "2025-10-30T03:56:22Z",
+  "input": {
+    "init": "cf6d14fd_1.jpeg",
+    "concept": [
+      "6db7df39_KakaoTalk_Photo_2025-10-29-22-19-29_002.jpeg",
+      "8a190ea5_KakaoTalk_Photo_2025-10-29-22-19-28_001.jpeg"
+    ],
+    "condition": [
+      "da11a9b1_KakaoTalk_Photo_2025-10-29-22-20-00_002.jpeg",
+      "bad3b5a6_KakaoTalk_Photo_2025-10-29-22-20-00_001.jpeg",
+      "485f6a6b_KakaoTalk_Photo_2025-10-29-22-20-01_003.jpeg",
+      "4496a3f7_KakaoTalk_Photo_2025-10-29-22-20-01_004.jpeg",
+      "746310e4_KakaoTalk_Photo_2025-10-29-22-20-01_005.jpeg"
+    ],
+    "mask": null
+  },
+  "stages": {}
+}
