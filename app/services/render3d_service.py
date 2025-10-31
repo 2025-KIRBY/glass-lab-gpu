@@ -1,6 +1,6 @@
 import torch, os
 from PIL import Image
-from app.models._3d_modeling import load_hunyuan_pipeline, remove_background
+from app.models.render3d_model import load_hunyuan_pipeline, remove_background
 
 async def render_3d_model(image_path: str) -> str:
     """
