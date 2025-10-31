@@ -10,5 +10,10 @@ opencv-python
 numpy
 python-multipart
 hf_transfer
+
 git+https://github.com/tencent-ailab/IP-Adapter.git
+
 git+https://github.com/Tencent-Hunyuan/Hunyuan3D-2.git
+PyOpenGL
+PyQt5
+tbb
