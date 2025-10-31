@@ -30,7 +30,7 @@ async def run_stage2(
 
     # 모델의 generate 메서드가 요구하는 ref_imgs와 weights 구성
     ref_imgs = [init_pil] + concept_pils + cond_pils
-    weights = [0.8] + [0.8] * len(concept_pils) + [0.4] * len(cond_pils)
+    weights = [0.6] + [0.8] * len(concept_pils) + [0.4] * len(cond_pils)
 
     # ============================================================
     # 3. 이미지 생성 (num_images 만큼)
@@ -47,7 +47,7 @@ async def run_stage2(
             ref_imgs=ref_imgs,
             weights=weights,
             seed=current_seed,
-            steps=20,
+            steps=40,
             guidance=7.5,
         )
         gen_images.append(generated_image)

@@ -111,14 +111,14 @@ class ControlNetSDXL:
         base_img: Image.Image,
         ref_imgs: List[Image.Image],
         weights: List[float],
-        steps: int = 20,
+        steps: int = 40,
         guidance: float = 7.5,
         seed: int = 1234
     ) -> Image.Image:
         control_image = self.get_control_image(base_img)
         embeds = self.set_adapter(ref_imgs, weights)
 
-        self.pipe.set_ip_adapter_scale(1.1)
+        self.pipe.set_ip_adapter_scale(1.2)
         generator = torch.Generator(device=self.device).manual_seed(seed)
 
         out = self.pipe(
@@ -130,7 +130,7 @@ class ControlNetSDXL:
             controlnet_conditioning_scale=0.3,
             control_guidance_start=0.0,
             control_guidance_end=0.2,
-            generator=generator
+            #generator=generator
         ).images[0]
 
         # 생성 후 메모리 정리
