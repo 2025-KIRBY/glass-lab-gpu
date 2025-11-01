@@ -3,8 +3,9 @@ from fastapi import APIRouter, File, UploadFile, HTTPException
 from fastapi.responses import JSONResponse
 import time, os, uuid
 from app.services.render3d_service import render_3d_model
+import traceback
 
-router = APIRouter(prefix="/api/v1", tags=["3D Render"])
+router = APIRouter(prefix="/api", tags=["3D Render"])
 
 @router.post("/render3d")
 async def render_3d(final_image: UploadFile = File(...)):
@@ -42,6 +43,9 @@ async def render_3d(final_image: UploadFile = File(...)):
         )
 
     except Exception as e:
+        print("❌ [Render3D Error]", str(e))
+        traceback.print_exc() 
+
         return JSONResponse(
             status_code=500,
             content={
@@ -50,3 +54,4 @@ async def render_3d(final_image: UploadFile = File(...)):
                 "message": f"3D 변환 중 오류 발생: {str(e)}"
             }
         )
+       
