@@ -86,7 +86,7 @@ async def run_stage2(
     mask_image: UploadFile,
     new_concept_images: List[UploadFile],
     condition_images: List[UploadFile],
-    num_images: int = 6,
+    num_images: int = 3,
 ) -> AsyncGenerator[bytes, None]:
     """
     Stage 2 인페인팅을 한 장 생성할 때마다 바로바로 내보내는 스트리밍 버전.

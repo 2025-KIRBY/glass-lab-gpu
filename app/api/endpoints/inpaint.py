@@ -52,7 +52,7 @@ async def inpaint_generate(
             mask_image=mask_image,
             new_concept_images=new_concept_images,
             condition_images=condition_images,
-            num_images=6,
+            num_images=3,
         )
 
     except Exception:
