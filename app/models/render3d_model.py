@@ -1,6 +1,7 @@
 import torch
 from hy3dgen.shapegen import Hunyuan3DDiTFlowMatchingPipeline
 from hy3dgen.rembg import BackgroundRemover
+
 import traceback
 
 # def load_hunyuan_pipeline(device: str = "cuda"):
@@ -24,11 +25,14 @@ def load_hunyuan_pipeline(device="cuda"):
             return _hunyuan_pipeline
 
         print(f"🔹 Loading Hunyuan3D model to {device} ...")
-        _hunyuan_pipeline = ShapeGenerator.from_pretrained(
+        dtype = torch.float16 if device == "cuda" else torch.float32
+
+        pipe = Hunyuan3DDiTFlowMatchingPipeline.from_pretrained(
             "tencent/Hunyuan3D-2",
-            torch_dtype=torch.float16
+            torch_dtype=dtype
         ).to(device)
 
+        _hunyuan_pipeline = pipe
         print("✅ Hunyuan3D pipeline loaded successfully")
         return _hunyuan_pipeline
 
