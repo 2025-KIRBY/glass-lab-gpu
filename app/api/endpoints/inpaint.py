@@ -14,7 +14,7 @@ router = APIRouter()
 
 @router.post("/inpaint")
 async def inpaint_generate(
-    prompt: str = Form(...),                        # ✅ 프론트에서 프롬프트
+    # prompt: str = Form(...), # 프론트에서 프롬프트 안 받는걸로
     init_image: UploadFile = File(...),
     mask_image: UploadFile = File(...),
     new_concept_images: List[UploadFile] = File(...),
@@ -25,7 +25,7 @@ async def inpaint_generate(
     """
     Stage 2 Inpainting API
     - prompt + init + mask + concept + condition 이미지 입력
-    - ZIP으로 결과 이미지 묶어 반환
+    - 생성 이미지는 한장씩 스트리밍으로 주기 
     """
 
     # 1️⃣ 업로드 파일 검증
@@ -39,12 +39,20 @@ async def inpaint_generate(
 
     try:
         # 3️⃣ 인페인팅 실행
-        zip_bytes, filename, job_id = await run_stage2(
-            prompt=prompt,
+        # zip_bytes, filename, job_id = await run_stage2(
+        #     prompt=prompt,
+        #     init_image=init_image,
+        #     mask_image=mask_image,
+        #     new_concept_images=new_concept_images,
+        #     condition_images=condition_images,
+        # )
+        gen = run_stage2(
+            prompt="",  # 디폴트 프롬프트는 서비스 계층에 넣어줌
             init_image=init_image,
             mask_image=mask_image,
             new_concept_images=new_concept_images,
             condition_images=condition_images,
+            num_images=6,
         )
 
     except Exception:
@@ -53,13 +61,13 @@ async def inpaint_generate(
 
     # 4️⃣ 응답 헤더 구성
     headers = {
-        "Content-Disposition": f'attachment; filename="{filename}"',
+        # "Content-Disposition": f'attachment; filename="{filename}"',
         "X-Job-Id": job_id,
     }
 
-    # 5️⃣ ZIP 스트리밍 응답 반환
+    # 5️⃣  스트리밍 응답 반환
     return StreamingResponse(
-        io.BytesIO(zip_bytes),
-        media_type="application/zip",
+        gen,
+        media_type="multipart/x-mixed-replace; boundary=frame",
         headers=headers,
     )
