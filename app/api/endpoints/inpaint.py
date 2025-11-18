@@ -59,15 +59,15 @@ async def inpaint_generate(
         log.exception("inpaint_generate failed")
         raise HTTPException(500, "인페인팅 생성 중 오류가 발생했습니다.")
 
-    # 4️⃣ 응답 헤더 구성
-    headers = {
-        # "Content-Disposition": f'attachment; filename="{filename}"',
-        "X-Job-Id": job_id,
-    }
+    # # 4️⃣ 응답 헤더 구성
+    # headers = {
+    #     # "Content-Disposition": f'attachment; filename="{filename}"',
+    #     "X-Job-Id": job_id,
+    # }
 
     # 5️⃣  스트리밍 응답 반환
     return StreamingResponse(
         gen,
         media_type="multipart/x-mixed-replace; boundary=frame",
-        headers=headers,
+        # headers=headers,
     )

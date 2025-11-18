@@ -89,7 +89,15 @@ async def run_stage1(
     init_image: UploadFile,
     concept_images: List[UploadFile],
     condition_images: List[UploadFile],
-    num_images: int = 6,
+
+    # 엔드포인트에서 넘어온 슬라이더 값들
+    init_image_weight: float,
+    concept_images_weight: float,
+    condition_images_weight: float,
+    controlnet_condition_scale: float,
+    control_guidance_end: float,
+
+    num_images: int = 6, # 기본값 맨 뒤로 가야함
 ) -> AsyncGenerator[bytes, None]:
     """
     이미지를 한 장 생성할 때마다 multipart/x-mixed-replace로 흘려보내는 generator
@@ -107,7 +115,7 @@ async def run_stage1(
     pipe = get_pipe()
 
     ref_imgs = [init_pil] + concept_pils + cond_pils
-    weights = [0.6] + [0.8] * len(concept_pils) + [0.2] * len(cond_pils)
+    weights = [init_image_weight] + [concept_images_weight] * len(concept_pils) + [condition_images_weight] * len(cond_pils)
 
     # 3. 로컬에 생성이미지들 저장!
     save_dir = Path("/workspace/outputs/generate")
@@ -126,6 +134,10 @@ async def run_stage1(
             ref_imgs=ref_imgs,
             weights=weights,
             seed=current_seed,
+
+            # 프론트 슬라이더에서 온 값 사용
+            controlnet_condition_scale=controlnet_condition_scale,
+            control_guidance_end=control_guidance_end,
         )
 
         # 서버에 PNG로 저장

@@ -13,6 +13,8 @@ class ControlNetSDXL:
         print("🔹 Loading SDXL ControlNet + IP-Adapter pipeline...")
         self.device = device
 
+        self.size = (1024, 1024)
+
         # --- Load core models ---
         self.vae = AutoencoderKL.from_pretrained(
             "madebyollin/sdxl-vae-fp16-fix",
@@ -53,15 +55,22 @@ class ControlNetSDXL:
 
         print("✅ Model load complete.")
 
+    def _resize_1024(self, img: Image.Image) -> Image.Image:
+        return img.convert("RGB").resize(self.size, Image.LANCZOS)
+
     # ============================================================
     # Utility: Control Image (Canny + Dilation)
     # ============================================================
     def get_control_image(self, init_image: Image.Image) -> Image.Image:
+        init_image = self._resize_1024(init_image)
+
         img_np = np.array(init_image.convert("RGB"))
         edges = cv2.Canny(img_np, 100, 200)
+        
         kernel = np.ones((3, 3), np.uint8)
         edges_thick = cv2.dilate(edges, kernel, iterations=1)
         control_img = np.concatenate([edges_thick[:, :, None]] * 3, axis=2)
+
         return Image.fromarray(control_img)
 
     # ============================================================
@@ -113,8 +122,13 @@ class ControlNetSDXL:
         weights: List[float],
         steps: int = 40,
         guidance: float = 7.5,
-        seed: int = 1234
+        seed: int = 1234,
+        controlnet_condition_scale: float,
+        control_guidance_end: float
     ) -> Image.Image:
+        base_img = self._resize_1024(base_img)
+        ref_imgs = [self._resize_1024(img) for img in ref_imgs]
+        
         control_image = self.get_control_image(base_img)
         embeds = self.set_adapter(ref_imgs, weights)
 
@@ -127,9 +141,9 @@ class ControlNetSDXL:
             num_inference_steps=steps,
             ip_adapter_image_embeds= embeds,
             image=control_image,
-            controlnet_conditioning_scale=0.3,
+            controlnet_conditioning_scale=controlnet_condition_scale,
             control_guidance_start=0.0,
-            control_guidance_end=0.2,
+            control_guidance_end=control_guidance_end,
             #generator=generator
         ).images[0]
 

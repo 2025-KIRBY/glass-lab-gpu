@@ -1,5 +1,5 @@
 # app/api/endpoints/generate.py
-from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
+from fastapi import APIRouter, UploadFile, File, HTTPException, Depends, Form
 from fastapi.responses import StreamingResponse
 from typing import List
 import io
@@ -17,6 +17,15 @@ async def generate(
     init_image: UploadFile = File(...),
     concept_images: List[UploadFile] = File(...),
     condition_images: List[UploadFile] = File(...),
+
+    # 슬라이더 값들 -> 괄호 안의 값은 디폴트
+    init_image_weight: float = Form(0.6),
+    concept_images_weight: float = Form(0.8),
+    condition_images_weight: float = Form(0.2),
+
+    controlnet_condition_scale: float = Form(0.35),
+    control_guidance_end: float = Form(0.35),
+
     _auth = Depends(require_auth),
     _conc = Depends(concurrency_guard),
 ):
@@ -39,18 +48,25 @@ async def generate(
             concept_images=concept_images,
             condition_images=condition_images,
             num_images=6,  # 필요하면 프론트에서 Form으로 받도록 바꿔도 됨
+
+            # 슬라이더에서 받은 값들 전달
+            init_image_weight=init_image_weight,
+            concept_images_weight=concept_images_weight,
+            condition_images_weight=condition_images_weight,
+            controlnet_condition_scale=controlnet_condition_scale,
+            control_guidance_end=control_guidance_end,
         )
     except Exception:
         log.exception("generate failed") 
         raise HTTPException(500, "이미지 생성 중 오류가 발생했습니다")
 
     # 스트리밍 응답으로 감싸서 반환하기
-    headers = {
-        # "Content-Disposition": f'attachment; filename="{filename}"',
-        "X-Job-Id": job_id,
-    }
+    # headers = {
+    #     # "Content-Disposition": f'attachment; filename="{filename}"',
+    #     "X-Job-Id": job_id,
+    # }
     return StreamingResponse(
         gen,
         media_type="multipart/x-mixed-replace; boundary=frame",
-        headers=headers,
+        # headers=headers,
     )
