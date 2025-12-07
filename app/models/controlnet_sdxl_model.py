@@ -120,11 +120,13 @@ class ControlNetSDXL:
         base_img: Image.Image,
         ref_imgs: List[Image.Image],
         weights: List[float],
+
+        controlnet_condition_scale: float,
+        control_guidance_end: float,
+        
         steps: int = 40,
         guidance: float = 7.5,
         seed: int = 1234,
-        controlnet_condition_scale: float,
-        control_guidance_end: float
     ) -> Image.Image:
         base_img = self._resize_1024(base_img)
         ref_imgs = [self._resize_1024(img) for img in ref_imgs]

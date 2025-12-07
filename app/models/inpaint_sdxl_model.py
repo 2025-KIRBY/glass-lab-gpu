@@ -88,7 +88,11 @@ class InpaintSDXL:
         mask_img: Image.Image,
         ref_imgs: List[Image.Image],
         weights: List[float],
-        steps: int = 20,
+
+        controlnet_condition_scale: float,
+        control_guidance_end: float,
+
+        steps: int = 40,
         guidance: float = 7.5,
         seed: int = 1234,
         # num_outputs: int = 5 -> 반복은 서비스 계층에서 시키는 걸로!
@@ -107,9 +111,9 @@ class InpaintSDXL:
             num_inference_steps=steps,
             ip_adapter_image_embeds=embeds,
             control_image=control_img,
-            controlnet_conditioning_scale=0.2,
+            controlnet_conditioning_scale=controlnet_condition_scale,
             control_guidance_start=0.0,
-            control_guidance_end=0.15,
+            control_guidance_end=control_guidance_end,
             image=base_img,
             mask_image=mask_img,
             generator=generator

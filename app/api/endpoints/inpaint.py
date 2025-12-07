@@ -19,6 +19,15 @@ async def inpaint_generate(
     mask_image: UploadFile = File(...),
     new_concept_images: List[UploadFile] = File(...),
     condition_images: List[UploadFile] = File(...),
+
+    # 슬라이더 값들
+    init_image_weight: float = Form(0.6),
+    new_concept_images_weight: float = Form(0.8),
+    condition_images_weight: float = Form(0.2),
+
+    controlnet_condition_scale: float = Form(0.35),
+    control_guidance_end: float = Form(0.35),
+
     _auth = Depends(require_auth),
     _conc = Depends(concurrency_guard),
 ):
@@ -53,6 +62,13 @@ async def inpaint_generate(
             new_concept_images=new_concept_images,
             condition_images=condition_images,
             num_images=3,
+
+            # 슬라이더 값 전달
+            init_image_weight=init_image_weight,
+            new_concept_images_weight=new_concept_images_weight,
+            condition_images_weight=condition_images_weight,
+            controlnet_condition_scale=controlnet_condition_scale,
+            control_guidance_end=control_guidance_end,
         )
 
     except Exception:

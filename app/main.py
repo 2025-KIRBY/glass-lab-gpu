@@ -38,6 +38,7 @@ app.add_middleware(
     allow_origins=[
     "http://localhost:5173",
     "https://glass-lab.vercel.app", 
+    "https://www.glass-lab.site"
 ],
     allow_credentials=True,
 

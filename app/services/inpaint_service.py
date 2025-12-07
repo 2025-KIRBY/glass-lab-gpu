@@ -86,6 +86,14 @@ async def run_stage2(
     mask_image: UploadFile,
     new_concept_images: List[UploadFile],
     condition_images: List[UploadFile],
+
+    # 엔드포인트에서 넘어온 슬라이더 값들
+    init_image_weight: float,
+    new_concept_images_weight: float,
+    condition_images_weight: float,
+    controlnet_condition_scale: float,
+    control_guidance_end: float,
+
     num_images: int = 3,
 ) -> AsyncGenerator[bytes, None]:
     """
@@ -103,7 +111,7 @@ async def run_stage2(
 
     # 3. 참조 이미지 & weight 구성
     ref_imgs = [init_pil] + concept_pils + cond_pils
-    weights = [0.6] + [0.8] * len(concept_pils) + [0.2] * len(cond_pils)
+    weights = [init_image_weight] + [new_concept_images_weight] * len(concept_pils) + [condition_images_weight] * len(cond_pils)
 
     # 4. 저장 폴더
     save_dir = Path("/workspace/outputs/inpaint")
@@ -125,6 +133,9 @@ async def run_stage2(
             seed=current_seed,
             steps=40,
             guidance=7.5,
+
+            controlnet_condition_scale=controlnet_condition_scale,
+            control_guidance_end=control_guidance_end,
         )
 
         # 파일명 구성
